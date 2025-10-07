@@ -24,5 +24,5 @@ if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
     echo "✅ Added $INSTALL_DIR to PATH in $SHELL_CONFIG"
 fi
 
-echo "✅ Stove CLI installed successfully!"
-echo "You can now run 'stove list' and 'stove cook --app AppName'"
+echo "Stove CLI installed successfully!"
+echo "WARNING PLEASE RESTART TERMINAL FOR STOVE TO TAKE ACTION! Once completed you will be able to now run 'stove list' and 'stove cook --app AppName'"
