@@ -3,7 +3,7 @@ import json
 import os
 import requests
 
-PACKAGES_URL = "https://raw.githubusercontent.com/KaiPie32/Stove/main/packages.json"
+PACKAGES_URL = "https://raw.githubusercontent.com/KaiPie32/stove/refs/heads/main/packages.json"
 INSTALL_DIR = os.path.expanduser("~/StoveApps")
 
 @click.group()
