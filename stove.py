@@ -13,8 +13,8 @@ import subprocess
 # =========================
 INSTALL_DIR = Path.home() / "Applications/StoveApps"
 STOVE_PATH = Path.home() / "bin" / "stove.py"
-PACKAGE_REPO = "https://example.com/stove-packages"   # <-- replace with your hosted repo
-STOVE_SCRIPT_URL = "https://example.com/stove.py"     # <-- replace with your hosted stove.py URL
+PACKAGE_REPO = "https://raw.githubusercontent.com/KaiPie32/stove/refs/heads/main/packages.json"  
+STOVE_SCRIPT_URL = "https://raw.githubusercontent.com/KaiPie32/stove/main/stove.py"
 
 # =========================
 # CORE FUNCTIONS
