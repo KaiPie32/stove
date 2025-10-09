@@ -18,7 +18,7 @@ def download_and_extract(url, app_name):
     apps_dir.mkdir(parents=True, exist_ok=True)
     temp_zip = Path.home() / f"{app_name}.zip"
 
-    print(f"⬇️  Downloading {app_name}...")
+    print(f"⬇️ Downloading {app_name}...")
     with requests.get(url, stream=True) as r:
         r.raise_for_status()
         with open(temp_zip, "wb") as f:
@@ -46,10 +46,12 @@ def cook(app_name):
     download_and_extract(app["url"], app["name"])
 
 def update():
-    stove_path = Path.home() / "bin" / "stove.py"
+    stove_path = Path.home() / "bin" / "stove"
     print("⬇️ Updating Stove CLI...")
     r = requests.get("https://raw.githubusercontent.com/KaiPie32/stove/main/stove.py")
+    r.raise_for_status()
     stove_path.write_text(r.text)
+    stove_path.chmod(0o755)
     print("✅ Stove updated successfully!")
 
 def help():
