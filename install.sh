@@ -5,20 +5,20 @@ echo "🔥 Installing Stove Package Manager..."
 # Create bin directory
 mkdir -p "$HOME/bin"
 
-# Download the main stove script
+# Download stove.py directly into bin as 'stove'
 curl -fsSL https://raw.githubusercontent.com/KaiPie32/stove/main/stove.py -o "$HOME/bin/stove"
-
-# Make it executable
 chmod +x "$HOME/bin/stove"
 
-# Add to PATH if not already
+# Add bin to PATH in current shell session if not present
+export PATH="$HOME/bin:$PATH"
+
+# Add to PATH permanently for zsh/bash
 if ! grep -q 'export PATH="$HOME/bin:$PATH"' "$HOME/.zshrc"; then
     echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.zshrc"
-    echo "✅ Added $HOME/bin to PATH in $HOME/.zshrc"
+fi
+if ! grep -q 'export PATH="$HOME/bin:$PATH"' "$HOME/.bashrc"; then
+    echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.bashrc"
 fi
 
 echo "✅ Stove installed successfully!"
-echo ""
 echo "You can now run 'stove list', 'stove cook --app AppName', or 'stove update'"
-echo ""
-echo "➡️  Please restart your terminal or run: source ~/.zshrc"
