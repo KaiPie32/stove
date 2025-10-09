@@ -2,7 +2,7 @@
 echo "🔥 Installing Stove Package Manager..."
 
 mkdir -p ~/bin
-curl -fsSL https://example.com/stove.py -o ~/bin/stove.py   # Replace URL with your hosted script
+curl -fsSL https://raw.githubusercontent.com/KaiPie32/stove/main/stove.py -o ~/bin/stove.py
 chmod +x ~/bin/stove.py
 
 # Add to PATH if not already
