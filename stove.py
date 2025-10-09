@@ -1,55 +1,107 @@
+#!/usr/bin/env python3
 import os
 import sys
-import json
+import urllib.request
 import zipfile
-import requests
+import shutil
 from pathlib import Path
+import subprocess
 
-def get_packages():
-    url = "https://raw.githubusercontent.com/KaiPie32/stove/main/packages.json"
-    response = requests.get(url)
-    response.raise_for_status()
-    return response.json()
+# =========================
+# CONFIGURATION
+# =========================
+INSTALL_DIR = Path.home() / "Applications/StoveApps"
+STOVE_PATH = Path.home() / "bin" / "stove.py"
+PACKAGE_REPO = "https://example.com/stove-packages"   # <-- replace with your hosted repo
+STOVE_SCRIPT_URL = "https://example.com/stove.py"     # <-- replace with your hosted stove.py URL
 
-def download_and_extract(url, app_name):
-    apps_dir = Path.home() / "Applications" / "StoveApps" / app_name
-    apps_dir.mkdir(parents=True, exist_ok=True)
+# =========================
+# CORE FUNCTIONS
+# =========================
+def ensure_install_dir():
+    INSTALL_DIR.mkdir(parents=True, exist_ok=True)
 
-    temp_zip = Path.home() / f"{app_name}.zip"
+def install(package_name):
+    ensure_install_dir()
+    package_url = f"{PACKAGE_REPO}/{package_name}.zip"
+    package_path = INSTALL_DIR / f"{package_name}.zip"
 
-    print(f"⬇️ Downloading {app_name}...")
-    response = requests.get(url, stream=True)
-    with open(temp_zip, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            f.write(chunk)
-
-    print("📦 Extracting...")
-    with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
-        zip_ref.extractall(apps_dir)
-
-    temp_zip.unlink()  # delete zip after extraction
-    print(f"✅ Installed {app_name} to {apps_dir}")
-
-def cook(app_name):
-    packages = get_packages()
-    app = next((p for p in packages["apps"] if p["name"].lower() == app_name.lower()), None)
-    if not app:
-        print(f"❌ App '{app_name}' not found.")
+    print(f"📦 Downloading {package_name} from {package_url}...")
+    try:
+        urllib.request.urlretrieve(package_url, package_path)
+    except Exception as e:
+        print(f"❌ Failed to download {package_name}: {e}")
         return
-    download_and_extract(app["url"], app["name"])
 
-def list_apps():
-    packages = get_packages()
-    print("📦 Available apps:")
-    for app in packages["apps"]:
-        print(f"- {app['name']} ({app['version']})")
+    print("📂 Unpacking package...")
+    try:
+        with zipfile.ZipFile(package_path, "r") as zip_ref:
+            zip_ref.extractall(INSTALL_DIR / package_name)
+    except Exception as e:
+        print(f"❌ Failed to unpack {package_name}: {e}")
+        return
+
+    package_path.unlink()
+    print(f"✅ Installed {package_name} in {INSTALL_DIR}/{package_name}")
+
+def list_installed():
+    ensure_install_dir()
+    apps = [p.name for p in INSTALL_DIR.iterdir() if p.is_dir()]
+    if not apps:
+        print("📭 No packages installed.")
+    else:
+        print("📦 Installed packages:")
+        for app in apps:
+            print(f" - {app}")
+
+def uninstall(package_name):
+    path = INSTALL_DIR / package_name
+    if path.exists():
+        shutil.rmtree(path)
+        print(f"🗑️  Uninstalled {package_name}")
+    else:
+        print(f"❌ {package_name} not found.")
+
+def update():
+    print("🔄 Updating Stove package manager...")
+    try:
+        urllib.request.urlretrieve(STOVE_SCRIPT_URL, STOVE_PATH)
+        os.chmod(STOVE_PATH, 0o755)
+        print("✅ Stove has been updated successfully!")
+    except Exception as e:
+        print(f"❌ Update failed: {e}")
+
+def help_menu():
+    print("""
+Stove Package Manager
+
+Usage:
+  stove install <package>     Install a package
+  stove list                  List installed packages
+  stove uninstall <package>   Uninstall a package
+  stove update                Update Stove
+  stove help                  Show this help message
+""")
+
+def main():
+    if len(sys.argv) < 2:
+        help_menu()
+        return
+
+    command = sys.argv[1]
+
+    if command == "install" and len(sys.argv) == 3:
+        install(sys.argv[2])
+    elif command == "list":
+        list_installed()
+    elif command == "uninstall" and len(sys.argv) == 3:
+        uninstall(sys.argv[2])
+    elif command == "update":
+        update()
+    elif command == "help":
+        help_menu()
+    else:
+        help_menu()
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: stove [list|cook --app AppName]")
-    elif sys.argv[1] == "list":
-        list_apps()
-    elif sys.argv[1] == "cook" and len(sys.argv) > 3 and sys.argv[2] == "--app":
-        cook(sys.argv[3])
-    else:
-        print("Invalid command.")
+    main()
