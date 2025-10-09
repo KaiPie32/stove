@@ -1,11 +1,34 @@
 {
-  "Roblox": {
-    "url": "https://github.com/KaiPie32/Roblox/blob/main/README.md"
-  },
-  "2": {
-    "url": "https://github.com/Homebrew/brew/blob/main/.vale.ini"
-  },
-  "VisualStudioCode": {
-    "url": "https://update.code.visualstudio.com/latest/darwin/stable"
-  }
+  "apps": [
+    {
+      "name": "RobloxPlayer",
+      "version": "1.0",
+      "description": "Installs the Roblox Player for macOS.",
+      "url": "https://setup.rbxcdn.com/mac/RobloxPlayer.zip"
+    },
+    {
+      "name": "RobloxStudio",
+      "version": "1.0",
+      "description": "Installs the Roblox Studio development environment.",
+      "url": "https://setup.rbxcdn.com/mac/RobloxStudio.zip"
+    },
+    {
+      "name": "Discord",
+      "version": "1.0",
+      "description": "Installs Discord for macOS.",
+      "url": "https://dl.discordapp.net/apps/osx/0.0.309/Discord.dmg"
+    },
+    {
+      "name": "VisualStudioCode",
+      "version": "1.0",
+      "description": "Installs Visual Studio Code for macOS.",
+      "url": "https://update.code.visualstudio.com/latest/darwin/stable"
+    },
+    {
+      "name": "GoogleChrome",
+      "version": "1.0",
+      "description": "Installs Google Chrome for macOS.",
+      "url": "https://dl.google.com/chrome/mac/stable/GGRO/googlechrome.dmg"
+    }
+  ]
 }
