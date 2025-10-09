@@ -1,68 +1,55 @@
-#!/usr/bin/env python3
 import os
 import sys
+import json
+import zipfile
 import requests
-import click
+from pathlib import Path
 
-# === CONFIG ===
-PACKAGES_URL = "https://raw.githubusercontent.com/KaiPie32/stove/main/packages.json"
-DOWNLOAD_DIR = os.path.expanduser("~/StoveApps")
+def get_packages():
+    url = "https://raw.githubusercontent.com/KaiPie32/stove/main/packages.json"
+    response = requests.get(url)
+    response.raise_for_status()
+    return response.json()
 
-# Make sure the download directory exists
-os.makedirs(DOWNLOAD_DIR, exist_ok=True)
+def download_and_extract(url, app_name):
+    apps_dir = Path.home() / "Applications" / "StoveApps" / app_name
+    apps_dir.mkdir(parents=True, exist_ok=True)
 
-# === CLI ===
-@click.group()
-def stove():
-    """Stove CLI - Install and manage apps easily on macOS"""
-    pass
+    temp_zip = Path.home() / f"{app_name}.zip"
 
-@stove.command()
-def list():
-    """List available apps"""
-    try:
-        response = requests.get(PACKAGES_URL)
-        response.raise_for_status()
-        data = response.json()
-    except Exception as e:
-        click.echo(f"❌ Failed to fetch app list: {e}")
-        sys.exit(1)
+    print(f"⬇️ Downloading {app_name}...")
+    response = requests.get(url, stream=True)
+    with open(temp_zip, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
 
-    click.echo("📦 Available Stove Apps:")
-    for app_name in data.keys():
-        click.echo(f" - {app_name}")
+    print("📦 Extracting...")
+    with zipfile.ZipFile(temp_zip, 'r') as zip_ref:
+        zip_ref.extractall(apps_dir)
 
-@stove.command()
-@click.option('--app', required=True, help="App name to install")
-def cook(app):
-    """Install an app"""
-    try:
-        response = requests.get(PACKAGES_URL)
-        response.raise_for_status()
-        packages = response.json()
-    except Exception as e:
-        click.echo(f"❌ Failed to fetch app list: {e}")
-        sys.exit(1)
+    temp_zip.unlink()  # delete zip after extraction
+    print(f"✅ Installed {app_name} to {apps_dir}")
 
-    if app not in packages:
-        click.echo(f"❌ App '{app}' not found in Stove packages.")
-        sys.exit(1)
+def cook(app_name):
+    packages = get_packages()
+    app = next((p for p in packages["apps"] if p["name"].lower() == app_name.lower()), None)
+    if not app:
+        print(f"❌ App '{app_name}' not found.")
+        return
+    download_and_extract(app["url"], app["name"])
 
-    url = packages[app]["url"]
-    filename = os.path.join(DOWNLOAD_DIR, os.path.basename(url))
+def list_apps():
+    packages = get_packages()
+    print("📦 Available apps:")
+    for app in packages["apps"]:
+        print(f"- {app['name']} ({app['version']})")
 
-    click.echo(f"⬇️  Downloading {app} from {url} ...")
-    try:
-        r = requests.get(url, stream=True)
-        r.raise_for_status()
-        with open(filename, "wb") as f:
-            for chunk in r.iter_content(chunk_size=8192):
-                f.write(chunk)
-        click.echo(f"✅ {app} downloaded to {filename}")
-    except Exception as e:
-        click.echo(f"❌ Failed to download {app}: {e}")
-        sys.exit(1)
-
-# === ENTRY POINT ===
 if __name__ == "__main__":
-    stove()
+    if len(sys.argv) < 2:
+        print("Usage: stove [list|cook --app AppName]")
+    elif sys.argv[1] == "list":
+        list_apps()
+    elif sys.argv[1] == "cook" and len(sys.argv) > 3 and sys.argv[2] == "--app":
+        cook(sys.argv[3])
+    else:
+        print("Invalid command.")
