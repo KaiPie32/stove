@@ -1,28 +1,21 @@
 #!/bin/bash
 
-# --- Setup directories ---
-INSTALL_DIR="$HOME/bin"
-APP_DIR="$HOME/StoveApps"
-
-mkdir -p "$INSTALL_DIR"
-mkdir -p "$APP_DIR"
-
-# --- Download stove.py ---
 echo "⬇️  Downloading Stove CLI..."
-curl -fsSL https://raw.githubusercontent.com/KaiPie32/stove/main/stove.py -o "$INSTALL_DIR/stove"
 
-# --- Make executable ---
-chmod +x "$INSTALL_DIR/stove"
+# Create bin folder in user's home
+mkdir -p "$HOME/bin"
 
-# --- Add to PATH if not already ---
-if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
-    SHELL_CONFIG="$HOME/.zshrc"
-    echo "" >> "$SHELL_CONFIG"
-    echo "# Added by Stove installer" >> "$SHELL_CONFIG"
-    echo "export PATH=\"$INSTALL_DIR:\$PATH\"" >> "$SHELL_CONFIG"
-    source "$SHELL_CONFIG"
-    echo "✅ Added $INSTALL_DIR to PATH in $SHELL_CONFIG"
+# Download the Stove executable script
+curl -fsSL "https://raw.githubusercontent.com/KaiPie32/stove/main/stove" -o "$HOME/bin/stove"
+chmod +x "$HOME/bin/stove"
+
+# Add $HOME/bin to PATH if not already
+if ! grep -q 'export PATH="$HOME/bin:$PATH"' "$HOME/.zshrc"; then
+    echo 'export PATH="$HOME/bin:$PATH"' >> "$HOME/.zshrc"
+    echo "✅ Added $HOME/bin to PATH in $HOME/.zshrc"
 fi
 
-echo "Stove CLI installed successfully!"
-echo "WARNING PLEASE RESTART TERMINAL FOR STOVE TO TAKE ACTION! Once completed you will be able to now run 'stove list' and 'stove cook --app AppName'"
+echo "✅ Stove CLI installed successfully!"
+echo ""
+echo "👉 Restart your terminal or run: source ~/.zshrc"
+echo "Then use 'stove list' or 'stove install <app>'"
